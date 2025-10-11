@@ -1,179 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gmail Link Share – Settings</title>
-  <link rel="stylesheet" href="shared.css">
-  <style>
-    html {
-      scroll-behavior: smooth;
-    }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gmail Link Share – Settings</title>
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
 
-    body {
-      background: var(--bg-secondary);
-    }
+      body {
+        background: var(--bg-secondary);
+      }
 
-    .page-wrapper {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+      .page-wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-    .hero {
-      padding: var(--space-2xl) var(--space-lg);
-      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    .hero-content {
-      max-width: 640px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .hero-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto var(--space-lg);
-      opacity: 0.95;
-    }
-
-    .hero-title {
-      font-size: var(--text-2xl);
-      font-weight: var(--weight-semibold);
-      color: var(--text-primary);
-      margin: 0 0 var(--space-sm) 0;
-      line-height: var(--leading-tight);
-    }
-
-    .hero-subtitle {
-      font-size: var(--text-base);
-      color: var(--text-secondary);
-      line-height: var(--leading-relaxed);
-      margin: 0;
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .main-content {
-      flex: 1;
-      padding: var(--space-2xl) var(--space-lg);
-    }
-
-    .content-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .settings-card {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      padding: var(--space-xl);
-    }
-
-    .card-header {
-      margin-bottom: var(--space-lg);
-    }
-
-    .card-title {
-      font-size: var(--text-lg);
-      font-weight: var(--weight-semibold);
-      color: var(--text-primary);
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-    }
-
-    .card-icon {
-      font-size: var(--text-xl);
-    }
-
-    .settings-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .footer {
-      padding: var(--space-xl) var(--space-lg);
-      border-top: 1px solid var(--border-light);
-      background: var(--bg-primary);
-      text-align: center;
-    }
-
-    .footer-text {
-      font-size: var(--text-sm);
-      color: var(--text-tertiary);
-      margin: 0;
-    }
-
-    .footer-link {
-      color: var(--info);
-      text-decoration: none;
-      transition: color var(--transition-fast);
-    }
-
-    .footer-link:hover {
-      color: var(--accent-primary);
-      text-decoration: underline;
-    }
-
-    @media (max-width: 640px) {
       .hero {
-        padding: var(--space-xl) var(--space-md);
+        padding: var(--space-2xl) var(--space-lg);
+        background: linear-gradient(
+          135deg,
+          var(--bg-secondary) 0%,
+          var(--bg-tertiary) 100%
+        );
+        border-bottom: 1px solid var(--border-light);
+      }
+
+      .hero-content {
+        max-width: 640px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      .hero-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto var(--space-lg);
+        opacity: 0.95;
+      }
+
+      .hero-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--weight-semibold);
+        color: var(--text-primary);
+        margin: 0 0 var(--space-sm) 0;
+        line-height: var(--leading-tight);
+      }
+
+      .hero-subtitle {
+        font-size: var(--text-base);
+        color: var(--text-secondary);
+        line-height: var(--leading-relaxed);
+        margin: 0;
+        max-width: 480px;
+        margin-left: auto;
+        margin-right: auto;
       }
 
       .main-content {
-        padding: var(--space-xl) var(--space-md);
+        flex: 1;
+        padding: var(--space-2xl) var(--space-lg);
+      }
+
+      .content-container {
+        max-width: 800px;
+        margin: 0 auto;
       }
 
       .settings-card {
-        padding: var(--space-lg);
+        background: var(--bg-primary);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: var(--space-xl);
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="page-wrapper">
-    <!-- Hero Section -->
-    <div class="hero fade-in">
-      <div class="hero-content">
-        <img src="logo/circle-logo-512.png" alt="Gmail Link Share" class="hero-icon">
-        <h1 class="hero-title">Gmail Link Share</h1>
-        <p class="hero-subtitle">
-          Create links to Gmail conversations that anyone who received the email can open - unlike regular Gmail URLs that only work for you.
+
+      .card-header {
+        margin-bottom: var(--space-lg);
+      }
+
+      .card-title {
+        font-size: var(--text-lg);
+        font-weight: var(--weight-semibold);
+        color: var(--text-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+      }
+
+      .card-icon {
+        font-size: var(--text-xl);
+      }
+
+      .settings-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .footer {
+        padding: var(--space-xl) var(--space-lg);
+        border-top: 1px solid var(--border-light);
+        background: var(--bg-primary);
+        text-align: center;
+      }
+
+      .footer-text {
+        font-size: var(--text-sm);
+        color: var(--text-tertiary);
+        margin: 0;
+      }
+
+      .footer-link {
+        color: var(--info);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+      }
+
+      .footer-link:hover {
+        color: var(--accent-primary);
+        text-decoration: underline;
+      }
+
+      @media (max-width: 640px) {
+        .hero {
+          padding: var(--space-xl) var(--space-md);
+        }
+
+        .main-content {
+          padding: var(--space-xl) var(--space-md);
+        }
+
+        .settings-card {
+          padding: var(--space-lg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <!-- Hero Section -->
+      <div class="hero fade-in">
+        <div class="hero-content">
+          <img
+            src="logo/circle-logo-512.png"
+            alt="Gmail Link Share"
+            class="hero-icon"
+          />
+          <h1 class="hero-title">Gmail Link Share</h1>
+          <p class="hero-subtitle">
+            Create links to Gmail conversations that anyone who received the
+            email can open - unlike regular Gmail URLs that only work for you.
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="content-container">
+          <!-- Tab Navigation -->
+          <div
+            id="tab-navigation-container"
+            class="settings-card fade-in-delay-1"
+          >
+            <!-- Tabs will be injected here by JavaScript -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p class="footer-text">
+          Gmail Link Share v1.0.0 &nbsp;•&nbsp;
+          <a
+            href="https://github.com/allen-n/gmail-link-share?ref=options"
+            class="footer-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub</a
+          >
+          &nbsp;•&nbsp;
+          <a
+            href="https://github.com/allen-n/gmail-link-share/issues/new?template=bug_report.md"
+            class="footer-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            id="report-issue"
+            >Report Issue</a
+          >
         </p>
       </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="content-container">
-        
-        <!-- Tab Navigation -->
-        <div id="tab-navigation-container" class="settings-card fade-in-delay-1">
-          <!-- Tabs will be injected here by JavaScript -->
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer">
-      <p class="footer-text">
-        Gmail Link Share v1.0.0 &nbsp;•&nbsp; 
-        <a href="https://github.com" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a> &nbsp;•&nbsp; 
-        <a href="#" class="footer-link" id="report-issue">Report Issue</a>
-      </p>
-    </div>
-  </div>
-
-  <script src="shared.js"></script>
-  <script src="options.js"></script>
-</body>
+    <script src="shared.js"></script>
+    <script src="options.js"></script>
+  </body>
 </html>
