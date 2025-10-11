@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Gmail Deep Link Copier",
+  "name": "Gmail Link Share",
   "version": "1.0.0",
-  "description": "Adds a button in Gmail to copy a deep link to the exact message using its RFC822 Message-ID.",
+  "description": "Create shareable Gmail links that work for anyone who received the email - not just you.",
   "action": {
-    "default_title": "Gmail Deep Link Copier",
+    "default_title": "Gmail Link Share",
     "default_popup": "popup.html"
   },
   "icons": {

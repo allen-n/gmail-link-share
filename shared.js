@@ -281,7 +281,7 @@ class SettingsManager {
         this.notifyGmailTabs(this.settings);
         
         if (showFeedback) {
-          showToast('Settings saved', true);
+          showToast('Settings saved successfully', true);
         }
         
         this.listeners.forEach(listener => listener(this.settings));
@@ -413,4 +413,219 @@ function createFeatureList(features) {
   });
   
   return list;
+}
+
+/**
+ * Tab Navigation Component
+ * Creates a tabbed interface with navigation and content panels
+ * @class
+ */
+class TabNavigation {
+  /**
+   * Create a new tab navigation
+   * @param {Array<{id: string, label: string, content: HTMLElement}>} tabs - Tab configuration
+   * @param {string} [defaultTab] - ID of the default active tab
+   */
+  constructor(tabs, defaultTab) {
+    this.tabs = tabs;
+    this.activeTab = defaultTab || tabs[0]?.id;
+    this.element = this.create();
+    this.onTabChange = null;
+  }
+  
+  /**
+   * Create the tab navigation DOM structure
+   * @returns {HTMLElement} The tab container element
+   */
+  create() {
+    const container = document.createElement('div');
+    container.className = 'tab-container';
+    
+    const tabList = document.createElement('div');
+    tabList.className = 'tab-list';
+    tabList.setAttribute('role', 'tablist');
+    
+    this.tabs.forEach(tab => {
+      const tabButton = document.createElement('button');
+      tabButton.type = 'button';
+      tabButton.className = 'tab-button';
+      tabButton.id = `tab-${tab.id}`;
+      tabButton.setAttribute('role', 'tab');
+      tabButton.setAttribute('aria-selected', this.activeTab === tab.id ? 'true' : 'false');
+      tabButton.setAttribute('aria-controls', `panel-${tab.id}`);
+      tabButton.textContent = tab.label;
+      
+      if (this.activeTab === tab.id) {
+        tabButton.classList.add('active');
+      }
+      
+      tabButton.addEventListener('click', () => this.switchTab(tab.id));
+      
+      tabList.appendChild(tabButton);
+    });
+    
+    container.appendChild(tabList);
+    
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'tab-content-container';
+    
+    this.tabs.forEach(tab => {
+      const panel = document.createElement('div');
+      panel.className = 'tab-panel';
+      panel.id = `panel-${tab.id}`;
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('aria-labelledby', `tab-${tab.id}`);
+      
+      if (this.activeTab !== tab.id) {
+        panel.style.display = 'none';
+      }
+      
+      panel.appendChild(tab.content);
+      contentContainer.appendChild(panel);
+    });
+    
+    container.appendChild(contentContainer);
+    
+    return container;
+  }
+  
+  /**
+   * Switch to a different tab
+   * @param {string} tabId - ID of the tab to switch to
+   * @returns {void}
+   */
+  switchTab(tabId) {
+    this.activeTab = tabId;
+    
+    const tabButtons = this.element.querySelectorAll('.tab-button');
+    tabButtons.forEach(btn => {
+      const btnTabId = btn.id.replace('tab-', '');
+      if (btnTabId === tabId) {
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+      } else {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
+      }
+    });
+    
+    const panels = this.element.querySelectorAll('.tab-panel');
+    panels.forEach(panel => {
+      const panelTabId = panel.id.replace('panel-', '');
+      if (panelTabId === tabId) {
+        panel.style.display = 'block';
+      } else {
+        panel.style.display = 'none';
+      }
+    });
+    
+    if (this.onTabChange) {
+      this.onTabChange(tabId);
+    }
+  }
+  
+  /**
+   * Get the DOM element
+   * @returns {HTMLElement} The tab container element
+   */
+  getElement() {
+    return this.element;
+  }
+}
+
+/**
+ * History Manager
+ * Handles loading, filtering, and managing email history
+ * @class
+ */
+class HistoryManager {
+  constructor() {
+    this.entries = [];
+    this.filteredEntries = [];
+  }
+  
+  /**
+   * Load history from chrome.storage.local
+   * @returns {Promise<Array>} Array of history entries
+   */
+  async load() {
+    return new Promise((resolve) => {
+      chrome.storage.local.get({ emailHistory: [] }, (result) => {
+        this.entries = result.emailHistory || [];
+        this.filteredEntries = [...this.entries];
+        resolve(this.entries);
+      });
+    });
+  }
+  
+  /**
+   * Clear all history
+   * @returns {Promise<void>}
+   */
+  async clear() {
+    this.entries = [];
+    this.filteredEntries = [];
+    return new Promise((resolve) => {
+      chrome.storage.local.set({ emailHistory: [] }, resolve);
+    });
+  }
+  
+  /**
+   * Filter entries based on search query
+   * Uses fuzzy matching against subject, from, to, and cc fields
+   * @param {string} query - Search query
+   * @returns {Array} Filtered entries
+   */
+  filter(query) {
+    if (!query || query.trim() === '') {
+      this.filteredEntries = [...this.entries];
+      return this.filteredEntries;
+    }
+    
+    const searchTerm = query.toLowerCase().trim();
+    
+    this.filteredEntries = this.entries.filter(entry => {
+      const subject = (entry.subject || '').toLowerCase();
+      const from = (entry.from || []).join(' ').toLowerCase();
+      const to = (entry.to || []).join(' ').toLowerCase();
+      const cc = (entry.cc || []).join(' ').toLowerCase();
+      
+      return subject.includes(searchTerm) || 
+             from.includes(searchTerm) || 
+             to.includes(searchTerm) || 
+             cc.includes(searchTerm);
+    });
+    
+    return this.filteredEntries;
+  }
+  
+  /**
+   * Get filtered entries (or all if no filter applied)
+   * @returns {Array} Current filtered entries
+   */
+  getFiltered() {
+    return this.filteredEntries;
+  }
+  
+  /**
+   * Format timestamp as relative time
+   * @param {number} timestamp - Unix timestamp in milliseconds
+   * @returns {string} Relative time string (e.g., "2 hours ago")
+   */
+  static formatTimestamp(timestamp) {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    
+    if (seconds < 60) return 'Just now';
+    if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+    if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+    if (days < 7) return `${days} day${days !== 1 ? 's' : ''} ago`;
+    
+    const date = new Date(timestamp);
+    return date.toLocaleDateString();
+  }
 }

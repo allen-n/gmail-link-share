@@ -1,12 +1,12 @@
-# Gmail Deep Link Copier
+# Gmail Link Share
 
-A Chrome extension that adds "Copy link" buttons throughout Gmail to create stable, shareable deep links to specific messages using RFC822 Message-ID.
+A Chrome extension that creates Gmail links anyone can use. Unlike regular Gmail URLs, these links work for anyone who received the email - not just you.
 
 ## ✨ Features
 
-- 🔗 **Stable Deep Links** - Uses RFC822 Message-ID for permanent, cross-account links
-- 🎯 **Multiple Locations** - Buttons in both conversation view and thread list view
-- 📋 **One-Click Copying** - Links automatically copied to clipboard with visual feedback
+- 🔗 **Links That Work For Everyone** - Unlike copying Gmail's URL, these links open the email for anyone who received it
+- 🎯 **Multiple Locations** - Buttons appear throughout Gmail for easy access
+- 📋 **One-Click Copying** - Click the button and share the link with your team
 - ⚙️ **Customizable** - Enable/disable buttons in different Gmail views via settings
 - 🔒 **Privacy-First** - Read-only access, no data collection, local processing only
 - 🎨 **Polished UI** - Beautiful design inspired by Mindful healthcare aesthetic
@@ -67,16 +67,24 @@ A Chrome extension that adds "Copy link" buttons throughout Gmail to create stab
 ### 3. First Use
 
 1. Open [Gmail](https://mail.google.com)
-2. You should see "Copy link" buttons next to messages and threads
+2. You should see "Copy shareable link" buttons next to messages and threads
 3. Click a button - you'll be prompted to authorize the extension (first time only)
-4. After authorization, the link will be copied to your clipboard
-5. Paste the link in a new tab to verify it opens the correct message
+4. After authorization, the shareable link will be copied to your clipboard
+5. Share the link with anyone who received the email - it will work for them too!
 
 ## 💡 How It Works
 
-### Deep Link Format
+### The Problem with Regular Gmail URLs
 
-This extension creates links using Gmail's RFC822 Message-ID search:
+When you copy a Gmail URL from your browser, it only works for you. If you send it to someone else who received the same email, it won't work - Gmail shows them a different URL.
+
+### The Solution
+
+This extension creates special links using the email's unique Message-ID. These links work for anyone who has access to the email, whether they were in the To, CC, or BCC fields.
+
+### Link Format
+
+The extension creates links using Gmail's RFC822 Message-ID search:
 
 ```
 https://mail.google.com/mail/#search/rfc822msgid%3A<message-id>
@@ -87,13 +95,12 @@ https://mail.google.com/mail/#search/rfc822msgid%3A<message-id>
 https://mail.google.com/mail/#search/rfc822msgid%3ACAH%3Dj8u4kZ...%40mail.gmail.com
 ```
 
-### Why RFC822 Message-ID?
+### Why This Works
 
-- **Universal** - RFC 5322 standard across all email systems
-- **Stable** - Never changes when forwarding, archiving, or switching accounts
-- **Unique** - Guaranteed unique identifier for each message
-- **Portable** - Works for anyone with access to the message
-- **No `/u/0`** - Links work regardless of Gmail account index
+- **Universal Access** - Works for anyone who received the email (To, CC, or BCC)
+- **Stable** - Links never break, even when emails are archived or forwarded
+- **No Account Issues** - Unlike regular Gmail URLs, these work regardless of which Gmail account someone is using
+- **Easy Sharing** - Share links with your team, and they'll actually work
 
 ### Architecture
 
@@ -120,8 +127,8 @@ Toast notification shows success
 
 ### Available Settings
 
-- **Conversation View** - Show/hide buttons next to messages in conversation threads
-- **Thread List View** - Show/hide buttons in the inbox thread list
+- **Conversation View** - Show/hide "Copy shareable link" buttons next to individual messages
+- **Thread List View** - Show/hide "Copy shareable link" buttons in your inbox list
 
 Settings are synced across all your Chrome devices via `chrome.storage.sync`.
 
@@ -174,9 +181,9 @@ gmail-deeplinker/
 - View DOM mutations, button injection, clipboard operations
 
 **Common Issues:**
-- **401 Unauthorized**: Client ID mismatch or Gmail API not enabled
-- **Buttons not appearing**: DOM selectors changed or page not fully loaded
-- **Clipboard fails**: Page must have focus (click Gmail first)
+- **"Failed to copy link"**: Make sure you've authorized the extension and the Gmail API is enabled
+- **Buttons not appearing**: Try refreshing Gmail or reloading the extension
+- **Clipboard fails**: Click on Gmail first to give it focus, then try again
 
 ### Contributing
 
@@ -216,28 +223,27 @@ See [ARCHITECTURE.md](agents_context/ARCHITECTURE.md) for detailed technical doc
 
 ## 📝 Known Limitations
 
-- **Gmail Web Only** - Does not work in Gmail mobile apps or other email clients
-- **Message-ID Required** - Rare messages without Message-ID headers will fail
-- **DOM Dependency** - Gmail UI changes may break button injection (we use stable selectors)
-- **Chrome/Chromium Only** - Uses Manifest V3 and Chrome Identity API
-- **Read Permission** - Can only create links for messages you have access to
+- **Gmail Web Only** - Links work anywhere, but buttons only appear in Gmail web (not mobile apps)
+- **Recipients Only** - Links only work for people who received the email (To, CC, or BCC)
+- **Chrome/Chromium Only** - Currently only available for Chrome-based browsers
+- **Authorization Required** - You need to authorize the extension to access your Gmail
 
 ## 🗺 Roadmap
 
 ### High Priority
-- [ ] Keyboard shortcut for copying link (e.g., `Ctrl+Shift+L`)
-- [ ] Better error messages with specific troubleshooting steps
-- [ ] Live settings updates without page refresh
+- [ ] Keyboard shortcut for copying shareable link (e.g., `Ctrl+Shift+L`)
+- [ ] Clearer error messages when links can't be created
+- [ ] Live settings updates without refreshing Gmail
 
 ### Medium Priority
-- [ ] Batch operations (copy multiple links at once)
+- [ ] Copy multiple links at once
 - [ ] Link format options (Markdown, HTML, plain text)
-- [ ] Hover preview showing Message-ID before copying
+- [ ] Preview links before copying
 
 ### Low Priority
 - [ ] Dark mode support
-- [ ] Usage statistics dashboard
-- [ ] Alternative link formats (direct message URL, etc.)
+- [ ] See how many links you've copied
+- [ ] Alternative link formats
 
 See [CLAUDE.md](agents_context/CLAUDE.md) for complete enhancement list.
 
@@ -260,8 +266,8 @@ See [LICENSE](LICENSE) file for details.
 ## 🐛 Issues & Support
 
 - **Report bugs**: Open an issue in the GitHub repository
-- **OAuth setup help**: See [ARCHITECTURE.md](agents_context/ARCHITECTURE.md) OAuth section
-- **API quota**: Default Gmail API quota is 1 billion calls/day (more than sufficient)
+- **Setup help**: See [ARCHITECTURE.md](agents_context/ARCHITECTURE.md) for detailed OAuth setup
+- **Questions**: Check the README or open an issue
 
 ---
 

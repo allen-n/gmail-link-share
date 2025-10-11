@@ -51,8 +51,8 @@ function createButton(getUrlFn, isListView = false) {
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = isListView ? "gdlc-btn gdlc-btn-icon" : "gdlc-btn";
-  btn.title = "Copy conversation link";
-  btn.setAttribute("aria-label", "Copy conversation link");
+  btn.title = "Copy shareable link that works for anyone who received this email";
+  btn.setAttribute("aria-label", "Copy shareable link");
   
   const img = document.createElement("img");
   img.src = chrome.runtime.getURL("logo/circle-logo-48.png");
@@ -64,7 +64,7 @@ function createButton(getUrlFn, isListView = false) {
   } else {
     btn.appendChild(img);
     const text = document.createElement("span");
-    text.textContent = " Copy link";
+    text.textContent = " Copy shareable link";
     text.style.marginLeft = "4px";
     btn.appendChild(text);
   }
@@ -77,7 +77,7 @@ function createButton(getUrlFn, isListView = false) {
     try {
       const url = await getUrlFn();
       await navigator.clipboard.writeText(url);
-      showToast("Link copied to clipboard!", true);
+      showToast("Shareable link copied! Anyone who received this email can open it.", true);
     } catch (err) {
       console.error(err);
       showToast("Failed to copy link. Please try again.", false);
