@@ -62,12 +62,9 @@
       padding: var(--space-2xl) var(--space-lg);
     }
 
-    .cards-container {
-      max-width: 640px;
+    .content-container {
+      max-width: 800px;
       margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-xl);
     }
 
     .settings-card {
@@ -100,63 +97,6 @@
       display: flex;
       flex-direction: column;
       gap: 0;
-    }
-
-    .info-card {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      padding: var(--space-xl);
-      transition: box-shadow var(--transition-base), transform var(--transition-base);
-    }
-
-    .info-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
-    }
-
-    .info-card-header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-md);
-      margin-bottom: var(--space-md);
-    }
-
-    .info-card-icon {
-      font-size: 24px;
-      line-height: 1;
-    }
-
-    .info-card-title {
-      font-size: var(--text-lg);
-      font-weight: var(--weight-semibold);
-      color: var(--text-primary);
-      margin: 0;
-    }
-
-    .feature-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-sm);
-    }
-
-    .feature-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--space-sm);
-      font-size: var(--text-base);
-      color: var(--text-secondary);
-      line-height: var(--leading-normal);
-    }
-
-    .feature-bullet {
-      color: var(--accent-primary);
-      font-weight: var(--weight-semibold);
-      flex-shrink: 0;
     }
 
     .footer {
@@ -192,8 +132,7 @@
         padding: var(--space-xl) var(--space-md);
       }
 
-      .settings-card,
-      .info-card {
+      .settings-card {
         padding: var(--space-lg);
       }
     }
@@ -215,101 +154,11 @@
 
     <!-- Main Content -->
     <div class="main-content">
-      <div class="cards-container">
+      <div class="content-container">
         
-        <!-- Settings Card -->
-        <div class="settings-card fade-in-delay-1">
-          <div class="card-header">
-            <h2 class="card-title">
-              <span class="card-icon">⚙️</span>
-              Button Display Settings
-            </h2>
-          </div>
-          <div id="settings-container" class="settings-list">
-            <!-- Toggle switches will be injected here by JavaScript -->
-          </div>
-        </div>
-
-        <!-- How It Works Card -->
-        <div class="info-card fade-in-delay-2">
-          <div class="info-card-header">
-            <span class="info-card-icon">📚</span>
-            <h3 class="info-card-title">How It Works</h3>
-          </div>
-          <ul class="feature-list">
-            <li>
-              <span class="feature-bullet">•</span>
-              <span>Click "Copy link" buttons that appear next to messages in Gmail</span>
-            </li>
-            <li>
-              <span class="feature-bullet">•</span>
-              <span>Share the stable URL with anyone who has access to the message</span>
-            </li>
-            <li>
-              <span class="feature-bullet">•</span>
-              <span>Links work across different Gmail accounts and don't break over time</span>
-            </li>
-            <li>
-              <span class="feature-bullet">•</span>
-              <span>Uses RFC822 Message-ID for universal, permanent message identification</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Privacy & Security Card -->
-        <div class="info-card fade-in-delay-3">
-          <div class="info-card-header">
-            <span class="info-card-icon">🔒</span>
-            <h3 class="info-card-title">Privacy & Security</h3>
-          </div>
-          <ul class="feature-list">
-            <li>
-              <span class="feature-bullet">•</span>
-              <span><strong>Read-only access:</strong> The extension can only read message headers, never send, delete, or modify emails</span>
-            </li>
-            <li>
-              <span class="feature-bullet">•</span>
-              <span><strong>No data collection:</strong> Message IDs are cached briefly in memory only, nothing is stored or sent anywhere</span>
-            </li>
-            <li>
-              <span class="feature-bullet">•</span>
-              <span><strong>Local processing:</strong> All link generation happens in your browser, no external servers involved</span>
-            </li>
-            <li>
-              <span class="feature-bullet">•</span>
-              <span><strong>Open source:</strong> Full source code is available for review and verification</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Features Card -->
-        <div class="info-card fade-in-delay-3">
-          <div class="info-card-header">
-            <span class="info-card-icon">✨</span>
-            <h3 class="info-card-title">Features</h3>
-          </div>
-          <ul class="feature-list">
-            <li>
-              <span class="feature-bullet">•</span>
-              <span><strong>Stable links:</strong> Use RFC822 Message-ID for permanent, cross-account links</span>
-            </li>
-            <li>
-              <span class="feature-bullet">•</span>
-              <span><strong>Multiple locations:</strong> Buttons appear in both conversation view and thread list view</span>
-            </li>
-            <li>
-              <span class="feature-bullet">•</span>
-              <span><strong>One-click copying:</strong> Links automatically copied to clipboard with visual feedback</span>
-            </li>
-            <li>
-              <span class="feature-bullet">•</span>
-              <span><strong>Customizable:</strong> Enable or disable buttons in different Gmail views</span>
-            </li>
-            <li>
-              <span class="feature-bullet">•</span>
-              <span><strong>Fast & lightweight:</strong> Minimal resource usage with smart caching</span>
-            </li>
-          </ul>
+        <!-- Tab Navigation -->
+        <div id="tab-navigation-container" class="settings-card fade-in-delay-1">
+          <!-- Tabs will be injected here by JavaScript -->
         </div>
 
       </div>

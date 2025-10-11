@@ -66,7 +66,7 @@ const CACHE_TTL_MS = 2 * 60 * 1000;
  */
 async function getToken(interactive = false) {
   return new Promise((resolve, reject) => {
-    chrome.identity.getAuthToken({ interactive }, token => {
+    chrome.identity.getAuthToken({ interactive }, (token) => {
       if (chrome.runtime.lastError || !token) {
         reject(new Error(chrome.runtime.lastError?.message || "No token"));
       } else {
@@ -90,7 +90,12 @@ async function authedGetJson(url) {
   let res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   if (res.status === 401) {
     // Invalidate and retry once interactively.
-    await new Promise(r => chrome.identity.getAuthToken({ interactive: false }, t => t && chrome.identity.removeCachedAuthToken({ token: t }, r)));
+    await new Promise((r) =>
+      chrome.identity.getAuthToken(
+        { interactive: false },
+        (t) => t && chrome.identity.removeCachedAuthToken({ token: t }, r)
+      )
+    );
     token = await getToken(true);
     res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   }
@@ -107,7 +112,7 @@ async function authedGetJson(url) {
  */
 function getHeader(message, name) {
   const headers = message?.payload?.headers || [];
-  const h = headers.find(h => h.name.toLowerCase() === name.toLowerCase());
+  const h = headers.find((h) => h.name.toLowerCase() === name.toLowerCase());
   return h ? h.value : null;
 }
 
@@ -131,7 +136,9 @@ function normalizeMessageId(raw) {
  * // returns "https://mail.google.com/mail/#search/rfc822msgid%3Aabc%40mail.gmail.com"
  */
 function buildDeepLink(normalizedMessageId) {
-  return `https://mail.google.com/mail/#search/rfc822msgid%3A${encodeURIComponent(normalizedMessageId)}`;
+  return `https://mail.google.com/mail/#search/rfc822msgid%3A${encodeURIComponent(
+    normalizedMessageId
+  )}`;
 }
 
 /**
@@ -145,14 +152,16 @@ async function getMessageIdHeaderByMessage(gmailMessageId) {
   const cacheKey = `msg:${gmailMessageId}`;
   const now = Date.now();
   const cached = headerCache.get(cacheKey);
-  if (cached && now - cached.ts < CACHE_TTL_MS) return cached.header;
-  const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeURIComponent(gmailMessageId)}?format=metadata&metadataHeaders=Message-ID`;
+  if (cached && now - cached.ts < CACHE_TTL_MS) {
+    return { normalized: cached.header, message: cached.message };
+  }
+  const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeURIComponent(gmailMessageId)}?format=metadata&metadataHeaders=Message-ID&metadataHeaders=From&metadataHeaders=To&metadataHeaders=CC&metadataHeaders=Subject`;
   const message = await authedGetJson(url);
   const raw = getHeader(message, "Message-ID");
   if (!raw) throw new Error("Message-ID header not found");
   const normalized = normalizeMessageId(raw);
-  headerCache.set(cacheKey, { header: normalized, ts: now });
-  return normalized;
+  headerCache.set(cacheKey, { header: normalized, message: message, ts: now });
+  return { normalized, message };
 }
 
 /**
@@ -167,16 +176,79 @@ async function getMessageIdHeaderForLastInThread(threadId) {
   const cacheKey = `thread-last:${threadId}`;
   const now = Date.now();
   const cached = headerCache.get(cacheKey);
-  if (cached && now - cached.ts < CACHE_TTL_MS) return cached.header;
-  const url = `https://gmail.googleapis.com/gmail/v1/users/me/threads/${encodeURIComponent(threadId)}?format=metadata&metadataHeaders=Message-ID`;
+  if (cached && now - cached.ts < CACHE_TTL_MS) {
+    return { normalized: cached.header, message: cached.message };
+  }
+  const url = `https://gmail.googleapis.com/gmail/v1/users/me/threads/${encodeURIComponent(threadId)}?format=metadata&metadataHeaders=Message-ID&metadataHeaders=From&metadataHeaders=To&metadataHeaders=CC&metadataHeaders=Subject`;
   const thread = await authedGetJson(url);
   const last = thread.messages?.[thread.messages.length - 1];
   if (!last) throw new Error("Thread has no messages");
   const raw = getHeader(last, "Message-ID");
   if (!raw) throw new Error("Message-ID header not found");
   const normalized = normalizeMessageId(raw);
-  headerCache.set(cacheKey, { header: normalized, ts: now });
-  return normalized;
+  headerCache.set(cacheKey, { header: normalized, message: last, ts: now });
+  return { normalized, message: last };
+}
+
+/**
+ * Parse email addresses from a header value.
+ * Handles formats like "Name <email@example.com>, Other <other@example.com>"
+ * @param {string|null} headerValue - Header value containing email addresses
+ * @returns {string[]} Array of email addresses
+ */
+function parseEmailAddresses(headerValue) {
+  if (!headerValue) return [];
+  const matches = headerValue.match(
+    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g
+  );
+  return matches || [];
+}
+
+/**
+ * Save email history entry to chrome.storage.local.
+ * Checks if history saving is enabled before saving.
+ * @param {string} url - Deep link URL
+ * @param {GmailMessageResource} message - Gmail message with headers
+ * @returns {Promise<void>}
+ */
+async function saveToHistory(url, message) {
+  const settings = await new Promise((resolve) => {
+    chrome.storage.sync.get({ saveHistory: true }, resolve);
+  });
+
+  if (!settings.saveHistory) return;
+
+  const subject = getHeader(message, "Subject") || "(No subject)";
+  const from = parseEmailAddresses(getHeader(message, "From"));
+  const to = parseEmailAddresses(getHeader(message, "To"));
+  const cc = parseEmailAddresses(getHeader(message, "CC"));
+  const messageId = getHeader(message, "Message-ID");
+
+  const entry = {
+    id: `${Date.now()}-${message.id}`,
+    timestamp: Date.now(),
+    url,
+    subject,
+    from,
+    to,
+    cc,
+    messageId: messageId ? normalizeMessageId(messageId) : null,
+  };
+
+  const { emailHistory = [] } = await new Promise((resolve) => {
+    chrome.storage.local.get({ emailHistory: [] }, resolve);
+  });
+
+  emailHistory.unshift(entry);
+
+  const maxEntries = 1000;
+  if (emailHistory.length > maxEntries) {
+    emailHistory.splice(maxEntries);
+  }
+
+  await new Promise((resolve) => {
+    chrome.storage.local.set({ emailHistory }, resolve);
+  });
 }
 
 /**
@@ -191,11 +263,19 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   (async () => {
     try {
       if (msg?.type === "getDeepLinkForMessage") {
-        const normalized = await getMessageIdHeaderByMessage(msg.gmailMessageId);
-        sendResponse({ ok: true, url: buildDeepLink(normalized) });
+        const { normalized, message } = await getMessageIdHeaderByMessage(
+          msg.gmailMessageId
+        );
+        const url = buildDeepLink(normalized);
+        await saveToHistory(url, message);
+        sendResponse({ ok: true, url });
       } else if (msg?.type === "getDeepLinkForThreadLast") {
-        const normalized = await getMessageIdHeaderForLastInThread(msg.threadId);
-        sendResponse({ ok: true, url: buildDeepLink(normalized) });
+        const { normalized, message } = await getMessageIdHeaderForLastInThread(
+          msg.threadId
+        );
+        const url = buildDeepLink(normalized);
+        await saveToHistory(url, message);
+        sendResponse({ ok: true, url });
       } else {
         sendResponse({ ok: false, error: "Unknown message type" });
       }
