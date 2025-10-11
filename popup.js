@@ -17,6 +17,12 @@ const settingsManager = new SettingsManager();
 const settingsContainer = document.getElementById('settings-container');
 
 /**
+ * Container element for history settings
+ * @type {HTMLElement}
+ */
+const historySettingsContainer = document.getElementById('history-settings-container');
+
+/**
  * Toggle switch for conversation view setting
  * @type {ToggleSwitch}
  */
@@ -29,12 +35,18 @@ let convToggle;
 let listToggle;
 
 /**
+ * Toggle switch for save history setting
+ * @type {ToggleSwitch}
+ */
+let saveHistoryToggle;
+
+/**
  * Initialize the popup page.
  * Loads current settings, creates toggle switches, and sets up event handlers.
  * @returns {Promise<void>}
  */
 async function init() {
-  const settings = await settingsManager.load({ conv: true, list: true });
+  const settings = await settingsManager.load({ conv: true, list: true, saveHistory: true });
   
   convToggle = new ToggleSwitch({
     id: 'conv',
@@ -56,8 +68,20 @@ async function init() {
     }
   });
   
+  saveHistoryToggle = new ToggleSwitch({
+    id: 'saveHistory',
+    label: 'Save Link History',
+    description: 'Automatically save email metadata when copying links',
+    checked: settings.saveHistory,
+    onChange: (checked) => {
+      settingsManager.save({ saveHistory: checked });
+    }
+  });
+  
   settingsContainer.appendChild(convToggle.getElement());
   settingsContainer.appendChild(listToggle.getElement());
+  
+  historySettingsContainer.appendChild(saveHistoryToggle.getElement());
   
   /**
    * Handle click on "Open full options" link
