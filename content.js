@@ -4,6 +4,8 @@
  * Uses robust selectors Gmail has kept stable for years: [data-legacy-message-id] for bubbles and [data-legacy-thread-id] for rows.
  */
 
+let settings = { conv: true, list: true };
+
 /**
  * Insert a button next to a target element if not already inserted.
  * @param {Element} host Where to place the button.
@@ -52,11 +54,11 @@ function showToast(text) {
  * Each message bubble usually has a container with [data-legacy-message-id] and a header bar with class ".gH".
  */
 function scanConversationView(root = document) {
+  if (!settings.conv) return;
   const bubbles = root.querySelectorAll('[data-legacy-message-id]');
   bubbles.forEach(bubble => {
     const gmailMessageId = bubble.getAttribute('data-legacy-message-id');
     if (!gmailMessageId) return;
-    // Place button in the header line (.gH) if present; otherwise append to bubble.
     const headerBar = bubble.querySelector('.gH') || bubble;
     ensureButton(headerBar, async () => {
       const res = await chrome.runtime.sendMessage({ type: "getDeepLinkForMessage", gmailMessageId });
@@ -71,11 +73,11 @@ function scanConversationView(root = document) {
  * Clicking copies the deep link for the last message in the thread.
  */
 function scanThreadListView(root = document) {
+  if (!settings.list) return;
   const rows = root.querySelectorAll('[data-legacy-thread-id]');
   rows.forEach(row => {
     const threadId = row.getAttribute('data-legacy-thread-id');
     if (!threadId) return;
-    // Try to place button near the subject line; fall back to the row container.
     const subject = row.querySelector('span.bog') || row;
     ensureButton(subject.parentElement || row, async () => {
       const res = await chrome.runtime.sendMessage({ type: "getDeepLinkForThreadLast", threadId });
@@ -100,13 +102,28 @@ function startObserver() {
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
-  // Initial scan
   scanConversationView();
   scanThreadListView();
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", startObserver);
-} else {
-  startObserver();
+function removeAllButtons() {
+  document.querySelectorAll('.gdlc-btn').forEach(btn => btn.remove());
 }
+
+chrome.runtime.onMessage.addListener((msg, _sender, _sendResponse) => {
+  if (msg?.type === 'settingsChanged') {
+    settings = msg.settings;
+    removeAllButtons();
+    scanConversationView();
+    scanThreadListView();
+  }
+});
+
+chrome.storage.sync.get({ conv: true, list: true }).then(v => {
+  settings = v;
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startObserver);
+  } else {
+    startObserver();
+  }
+});

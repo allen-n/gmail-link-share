@@ -1,0 +1,44 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Gmail Deep Link Copier</title>
+<style>
+body {
+  font: 14px system-ui;
+  margin: 0;
+  padding: 16px;
+  min-width: 280px;
+}
+h1 {
+  font-size: 16px;
+  margin: 0 0 12px 0;
+}
+label {
+  display: block;
+  margin: 8px 0;
+  cursor: pointer;
+}
+input[type="checkbox"] {
+  margin-right: 8px;
+}
+.footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 12px;
+  color: #666;
+}
+.footer a {
+  color: #1a73e8;
+  text-decoration: none;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
+</style>
+<h1>Gmail Deep Link Copier</h1>
+<label><input id="conv" type="checkbox"> Enable buttons in conversation view</label>
+<label><input id="list" type="checkbox"> Enable buttons in thread list view</label>
+<div class="footer">
+  <a href="options.html" target="_blank">Open full options page</a>
+</div>
+<script src="popup.js"></script>
