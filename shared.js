@@ -281,7 +281,7 @@ class SettingsManager {
         this.notifyGmailTabs(this.settings);
         
         if (showFeedback) {
-          showToast('Settings saved', true);
+          showToast('Settings saved successfully', true);
         }
         
         this.listeners.forEach(listener => listener(this.settings));
