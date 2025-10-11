@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gmail Deep Link Copier</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    body {
+      min-width: 320px;
+      max-width: 360px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .popup-container {
+      padding: 0;
+    }
+
+    .popup-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-lg);
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .popup-header-icon {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .popup-header-text {
+      flex: 1;
+    }
+
+    .popup-title {
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .popup-subtitle {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      margin: 2px 0 0 0;
+    }
+
+    .popup-body {
+      padding: var(--space-lg);
+      background: var(--bg-primary);
+    }
+
+    .section-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 var(--space-md) 0;
+    }
+
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .popup-footer {
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--border-light);
+      background: var(--bg-secondary);
+      text-align: center;
+    }
+
+    .footer-link {
+      font-size: var(--text-sm);
+      color: var(--info);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: color var(--transition-fast);
+    }
+
+    .footer-link:hover {
+      color: var(--accent-primary);
+      text-decoration: underline;
+    }
+
+    .footer-link svg {
+      width: 14px;
+      height: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="popup-container">
+    <div class="popup-header">
+      <img src="logo/circle-logo-128.png" alt="" class="popup-header-icon">
+      <div class="popup-header-text">
+        <h1 class="popup-title">Gmail Deep Link Copier</h1>
+        <p class="popup-subtitle">Quick Settings</p>
+      </div>
+    </div>
+
+    <div class="popup-body">
+      <h2 class="section-title">Button Display</h2>
+      <div id="settings-container" class="settings-list">
+        <!-- Toggle switches will be injected here by JavaScript -->
+      </div>
+    </div>
+
+    <div class="popup-footer">
+      <a href="#" id="open-options" class="footer-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
+        </svg>
+        More Options
+      </a>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

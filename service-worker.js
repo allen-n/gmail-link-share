@@ -4,15 +4,65 @@
  * All functions are documented with JSDoc for clarity and future maintenance.
  */
 
-// Cache tokens and headers briefly to reduce API calls.
-const headerCache = new Map(); // key: gmailMessageId or threadId+last; val: { header: string, ts: number }
+/**
+ * Gmail API Message resource structure (metadata format)
+ * @typedef {Object} GmailMessageResource
+ * @property {string} id - Gmail message ID
+ * @property {string} threadId - Gmail thread ID
+ * @property {Object} payload - Message payload
+ * @property {Array<{name: string, value: string}>} payload.headers - Message headers
+ */
+
+/**
+ * Gmail API Thread resource structure (metadata format)
+ * @typedef {Object} GmailThreadResource
+ * @property {string} id - Gmail thread ID
+ * @property {GmailMessageResource[]} messages - Array of messages in thread
+ */
+
+/**
+ * Cache entry for storing Message-ID headers
+ * @typedef {Object} HeaderCacheEntry
+ * @property {string} header - Normalized Message-ID (without angle brackets)
+ * @property {number} ts - Timestamp when cached (milliseconds since epoch)
+ */
+
+/**
+ * Request message from content script to service worker
+ * @typedef {Object} MessageRequest
+ * @property {string} type - Message type: "getDeepLinkForMessage" or "getDeepLinkForThreadLast"
+ * @property {string} [gmailMessageId] - Gmail message ID (for getDeepLinkForMessage)
+ * @property {string} [threadId] - Gmail thread ID (for getDeepLinkForThreadLast)
+ */
+
+/**
+ * Response message from service worker to content script
+ * @typedef {Object} MessageResponse
+ * @property {boolean} ok - Whether operation succeeded
+ * @property {string} [url] - Deep link URL (on success)
+ * @property {string} [error] - Error message (on failure)
+ */
+
+/**
+ * Cache for Message-ID headers with timestamp-based expiration
+ * Key format: "msg:{gmailMessageId}" or "thread-last:{threadId}"
+ * @type {Map<string, HeaderCacheEntry>}
+ */
+const headerCache = new Map();
+
+/**
+ * Cache TTL in milliseconds (2 minutes)
+ * @type {number}
+ * @constant
+ */
 const CACHE_TTL_MS = 2 * 60 * 1000;
 
 /**
  * Get an OAuth token for the requested scopes using chrome.identity.
  * Always requests non-interactively first; falls back to interactive on demand.
- * @param {boolean} interactive Whether to show the account chooser/consent if needed.
- * @returns {Promise<string>} Bearer token.
+ * @param {boolean} [interactive=false] - Whether to show the account chooser/consent if needed
+ * @returns {Promise<string>} Bearer token for Gmail API authentication
+ * @throws {Error} If token retrieval fails or user denies consent
  */
 async function getToken(interactive = false) {
   return new Promise((resolve, reject) => {
@@ -28,8 +78,11 @@ async function getToken(interactive = false) {
 
 /**
  * Fetch JSON with automatic token injection and 401 retry (token invalidation).
- * @param {string} url REST endpoint URL.
- * @returns {Promise<any>} Parsed JSON.
+ * First attempts non-interactive auth, falls back to interactive if needed.
+ * On 401, invalidates cached token and retries once.
+ * @param {string} url - Gmail API REST endpoint URL
+ * @returns {Promise<GmailMessageResource|GmailThreadResource>} Parsed JSON response
+ * @throws {Error} If API returns non-OK status or network error occurs
  */
 async function authedGetJson(url) {
   let token = await getToken(false).catch(() => null);
@@ -47,9 +100,10 @@ async function authedGetJson(url) {
 
 /**
  * Extract a single header value by name from a Gmail API Message resource.
- * @param {any} message Gmail API message JSON (format=metadata).
- * @param {string} name Header name, e.g., "Message-ID".
- * @returns {string|null} Header value or null if absent.
+ * Search is case-insensitive.
+ * @param {GmailMessageResource} message - Gmail API message JSON (format=metadata)
+ * @param {string} name - Header name, e.g., "Message-ID"
+ * @returns {string|null} Header value or null if header not found
  */
 function getHeader(message, name) {
   const headers = message?.payload?.headers || [];
@@ -59,8 +113,9 @@ function getHeader(message, name) {
 
 /**
  * Normalize RFC822 Message-ID by stripping angle brackets if present.
- * @param {string} raw Raw header value, e.g., "<abc@x.com>".
- * @returns {string} Normalized value without <>.
+ * RFC 5322 Message-IDs are typically wrapped in angle brackets: <id@domain>
+ * @param {string} raw - Raw header value, e.g., "<abc@x.com>"
+ * @returns {string} Normalized value without angle brackets, e.g., "abc@x.com"
  */
 function normalizeMessageId(raw) {
   return raw.replace(/^<|>$/g, "");
@@ -68,9 +123,12 @@ function normalizeMessageId(raw) {
 
 /**
  * Build a Gmail rfc822msgid deep link for a given Message-ID (without angle brackets).
- * No user index (/u/0) is included for universality.
- * @param {string} normalizedMessageId Message-ID without angle brackets.
- * @returns {string} Fully URL-escaped Gmail deep link.
+ * No user index (/u/0) is included for universality across multi-account setups.
+ * @param {string} normalizedMessageId - Message-ID without angle brackets
+ * @returns {string} Fully URL-escaped Gmail deep link using rfc822msgid search operator
+ * @example
+ * buildDeepLink("abc@mail.gmail.com")
+ * // returns "https://mail.google.com/mail/#search/rfc822msgid%3Aabc%40mail.gmail.com"
  */
 function buildDeepLink(normalizedMessageId) {
   return `https://mail.google.com/mail/#search/rfc822msgid%3A${encodeURIComponent(normalizedMessageId)}`;
@@ -78,9 +136,10 @@ function buildDeepLink(normalizedMessageId) {
 
 /**
  * Get RFC822 Message-ID for a Gmail message by its Gmail messageId.
- * Uses metadata format to keep payload small.
- * @param {string} gmailMessageId Gmail message resource ID.
- * @returns {Promise<string>} Normalized Message-ID.
+ * Uses metadata format to keep payload small. Results are cached for 2 minutes.
+ * @param {string} gmailMessageId - Gmail message resource ID
+ * @returns {Promise<string>} Normalized Message-ID without angle brackets
+ * @throws {Error} If Message-ID header is not found or API call fails
  */
 async function getMessageIdHeaderByMessage(gmailMessageId) {
   const cacheKey = `msg:${gmailMessageId}`;
@@ -98,8 +157,11 @@ async function getMessageIdHeaderByMessage(gmailMessageId) {
 
 /**
  * Get RFC822 Message-ID for the last message in a thread.
- * @param {string} threadId Gmail thread ID.
- * @returns {Promise<string>} Normalized Message-ID of last message in thread.
+ * Fetches entire thread and extracts Message-ID from the last message.
+ * Results are cached for 2 minutes.
+ * @param {string} threadId - Gmail thread ID
+ * @returns {Promise<string>} Normalized Message-ID of last message in thread
+ * @throws {Error} If thread has no messages, Message-ID not found, or API call fails
  */
 async function getMessageIdHeaderForLastInThread(threadId) {
   const cacheKey = `thread-last:${threadId}`;
@@ -117,7 +179,14 @@ async function getMessageIdHeaderForLastInThread(threadId) {
   return normalized;
 }
 
-// Message router for content script requests.
+/**
+ * Message router for content script requests.
+ * Handles deep link generation requests from content script.
+ * @param {MessageRequest} msg - Request message from content script
+ * @param {chrome.runtime.MessageSender} _sender - Message sender info (unused)
+ * @param {function(MessageResponse): void} sendResponse - Response callback
+ * @returns {boolean} True to keep message channel open for async response
+ */
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   (async () => {
     try {
@@ -134,5 +203,5 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       sendResponse({ ok: false, error: String(e?.message || e) });
     }
   })();
-  return true; // keep the message channel open for async sendResponse
+  return true;
 });

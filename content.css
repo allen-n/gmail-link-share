@@ -1,25 +1,116 @@
 .gdlc-btn {
+  display: inline-flex;
+  align-items: center;
   margin-left: 8px;
-  padding: 2px 6px;
+  padding: 4px 8px;
   font: 12px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   border: 1px solid rgba(60,64,67,0.3);
   border-radius: 4px;
   background: rgba(248,249,250,0.9);
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 .gdlc-btn:hover { background: white; }
+.gdlc-btn .gdlc-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.gdlc-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  margin: 0 6px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  vertical-align: middle;
+}
+
+.gdlc-btn-icon:hover {
+  background: rgba(60,64,67,0.08);
+  transform: scale(1.1);
+}
+
+.gdlc-btn-icon:active {
+  transform: scale(0.95);
+}
+
+.gdlc-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.gdlc-btn-icon:hover .gdlc-icon {
+  opacity: 1;
+}
+
+@keyframes flash-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  25% { transform: scale(1.3); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+  75% { transform: scale(1.3); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.gdlc-btn-clicked {
+  animation: flash-pulse 0.6s ease-out;
+}
+
 .gdlc-toast {
   position: fixed;
   right: 16px;
   bottom: 16px;
-  background: rgba(60,64,67,0.9);
-  color: white;
-  padding: 8px 10px;
-  border-radius: 6px;
+  background: white;
+  color: #202124;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
   opacity: 0;
-  transform: translateY(4px);
-  transition: opacity .15s ease, transform .15s ease;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
   z-index: 2147483647;
   pointer-events: none;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 14px;
+  max-width: 320px;
 }
-.gdlc-toast.show { opacity: 1; transform: translateY(0); }
+
+.gdlc-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gdlc-toast-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.gdlc-toast-icon-success {
+  background: #34a853;
+  color: white;
+}
+
+.gdlc-toast-icon-error {
+  background: #ea4335;
+  color: white;
+}
+
+.gdlc-toast-message {
+  line-height: 1.4;
+}
