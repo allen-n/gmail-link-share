@@ -55,7 +55,7 @@ function createButton(getUrlFn, isListView = false) {
   btn.setAttribute("aria-label", "Copy conversation link");
   
   const img = document.createElement("img");
-  img.src = chrome.runtime.getURL("logo/logo-16.png");
+  img.src = chrome.runtime.getURL("logo/circle-logo-48.png");
   img.alt = "";
   img.className = "gdlc-icon";
   

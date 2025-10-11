@@ -8,9 +8,9 @@
     "default_popup": "popup.html"
   },
   "icons": {
-    "16": "logo/logo-16.png",
-    "48": "logo/logo-48.png",
-    "128": "logo/logo-128.png"
+    "16": "logo/circle-logo-48.png",
+    "48": "logo/circle-logo-128.png",
+    "128": "logo/circle-logo-512.png"
   },
   "permissions": [
     "scripting",
@@ -54,7 +54,7 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "logo/logo-16.png"
+        "logo/circle-logo-48.png"
       ],
       "matches": [
         "https://mail.google.com/*"
