@@ -1,5 +1,4 @@
 {
-  // Comments are accepted in the manifest, even though it is JSON.
   "manifest_version": 3,
   "name": "Gmail Deep Link Copier",
   "version": "1.0.0",
@@ -51,5 +50,15 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none';"
   },
-  "options_page": "options.html"
+  "options_page": "options.html",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "logo/logo-16.png"
+      ],
+      "matches": [
+        "https://mail.google.com/*"
+      ]
+    }
+  ]
 }
