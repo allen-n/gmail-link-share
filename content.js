@@ -183,6 +183,7 @@ function scanThreadListView(root = document) {
     
     const newCell = document.createElement('td');
     newCell.className = 'xY';
+    newCell.classList.add('gdlc-cell');
     newCell.style.paddingLeft = '4px';
     newCell.style.verticalAlign = 'middle';
     
@@ -221,12 +222,14 @@ function startObserver() {
 }
 
 /**
- * Remove all injected copy link buttons from the page.
+ * Remove all injected copy link buttons and their container cells from the page.
  * Used when settings change to refresh button visibility.
+ * Removes both .gdlc-btn elements (conversation view) and .gdlc-cell elements (thread list view).
  * @returns {void}
  */
 function removeAllButtons() {
   document.querySelectorAll('.gdlc-btn').forEach(btn => btn.remove());
+  document.querySelectorAll('.gdlc-cell').forEach(cell => cell.remove());
 }
 
 /**
