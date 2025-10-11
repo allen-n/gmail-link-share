@@ -4,13 +4,48 @@
  * Uses robust selectors Gmail has kept stable for years: [data-legacy-message-id] for bubbles and [data-legacy-thread-id] for rows.
  */
 
+/**
+ * Extension settings object structure
+ * @typedef {Object} ExtensionSettings
+ * @property {boolean} conv - Show copy buttons in conversation view (message bubbles)
+ * @property {boolean} list - Show copy buttons in thread list view (inbox rows)
+ */
+
+/**
+ * Request message sent to service worker
+ * @typedef {Object} ServiceWorkerRequest
+ * @property {string} type - Message type: "getDeepLinkForMessage" or "getDeepLinkForThreadLast"
+ * @property {string} [gmailMessageId] - Gmail message ID (for getDeepLinkForMessage)
+ * @property {string} [threadId] - Gmail thread ID (for getDeepLinkForThreadLast)
+ */
+
+/**
+ * Response message from service worker
+ * @typedef {Object} ServiceWorkerResponse
+ * @property {boolean} ok - Whether operation succeeded
+ * @property {string} [url] - Deep link URL (on success)
+ * @property {string} [error] - Error message (on failure)
+ */
+
+/**
+ * Settings change message from popup/options pages
+ * @typedef {Object} SettingsChangeMessage
+ * @property {string} type - Message type: "settingsChanged"
+ * @property {ExtensionSettings} settings - Updated settings object
+ */
+
+/**
+ * Current extension settings
+ * @type {ExtensionSettings}
+ */
 let settings = { conv: true, list: true };
 
 /**
  * Create a button element for copying deep links.
- * @param {() => Promise<string>} getUrlFn Async function returning the deep link URL.
- * @param {boolean} isListView Whether this is for the thread list view (use icon-only style).
- * @returns {HTMLButtonElement} The button element.
+ * Button includes icon and optional text label. Handles click event to copy URL to clipboard.
+ * @param {function(): Promise<string>} getUrlFn - Async function returning the deep link URL
+ * @param {boolean} [isListView=false] - Whether this is for the thread list view (use icon-only style)
+ * @returns {HTMLButtonElement} The button element with click handler attached
  */
 function createButton(getUrlFn, isListView = false) {
   const btn = document.createElement("button");
@@ -54,8 +89,10 @@ function createButton(getUrlFn, isListView = false) {
 
 /**
  * Show a toast notification with a message.
- * @param {string} text Message text.
- * @param {boolean} isSuccess Whether this is a success message.
+ * Toast appears at bottom-right, auto-dismisses after 2.5 seconds.
+ * @param {string} text - Message text to display
+ * @param {boolean} isSuccess - Whether this is a success message (green checkmark) or error (red X)
+ * @returns {void}
  */
 function showToast(text, isSuccess) {
   const existingToast = document.querySelector(".gdlc-toast");
@@ -88,6 +125,8 @@ function showToast(text, isSuccess) {
  * For conversation view, find message header bars and inject buttons.
  * Each message bubble has [data-legacy-message-id]. Button is placed before the star button.
  * Strategy: Look for structural patterns (role="checkbox", aria-label with "starred") rather than class names.
+ * @param {Document|HTMLElement} [root=document] - Root element to scan (defaults to entire document)
+ * @returns {void}
  */
 function scanConversationView(root = document) {
   if (!settings.conv) return;
@@ -121,6 +160,8 @@ function scanConversationView(root = document) {
  * For thread list view, place a button just after the checkbox cell.
  * Clicking copies the deep link for the last message in the thread.
  * Strategy: Find thread ID from nested span, traverse to row, find checkbox cell, insert new cell after it.
+ * @param {Document|HTMLElement} [root=document] - Root element to scan (defaults to entire document)
+ * @returns {void}
  */
 function scanThreadListView(root = document) {
   if (!settings.list) return;
@@ -159,6 +200,9 @@ function scanThreadListView(root = document) {
 
 /**
  * Master observer that re-scans on Gmail's SPA mutations.
+ * Sets up MutationObserver to detect DOM changes and inject buttons as needed.
+ * Runs initial scan immediately after setup.
+ * @returns {void}
  */
 function startObserver() {
   const observer = new MutationObserver(muts => {
@@ -176,10 +220,23 @@ function startObserver() {
   scanThreadListView();
 }
 
+/**
+ * Remove all injected copy link buttons from the page.
+ * Used when settings change to refresh button visibility.
+ * @returns {void}
+ */
 function removeAllButtons() {
   document.querySelectorAll('.gdlc-btn').forEach(btn => btn.remove());
 }
 
+/**
+ * Listen for settings changes from popup/options pages.
+ * When settings change, removes all buttons and re-scans based on new settings.
+ * @param {SettingsChangeMessage} msg - Message from popup/options
+ * @param {chrome.runtime.MessageSender} _sender - Sender info (unused)
+ * @param {function(*): void} _sendResponse - Response callback (unused)
+ * @returns {void}
+ */
 chrome.runtime.onMessage.addListener((msg, _sender, _sendResponse) => {
   if (msg?.type === 'settingsChanged') {
     settings = msg.settings;
@@ -189,6 +246,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, _sendResponse) => {
   }
 });
 
+/**
+ * Initialize content script on page load.
+ * Loads settings from chrome.storage.sync and starts DOM observer.
+ * @returns {Promise<void>}
+ */
 chrome.storage.sync.get({ conv: true, list: true }).then(v => {
   settings = v;
   if (document.readyState === "loading") {

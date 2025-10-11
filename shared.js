@@ -4,6 +4,32 @@
  */
 
 /**
+ * Extension settings object structure
+ * @typedef {Object} ExtensionSettings
+ * @property {boolean} conv - Show copy buttons in conversation view (message bubbles)
+ * @property {boolean} list - Show copy buttons in thread list view (inbox rows)
+ */
+
+/**
+ * Options for configuring a ToggleSwitch component
+ * @typedef {Object} ToggleSwitchOptions
+ * @property {string} id - Unique identifier for the toggle
+ * @property {string} label - Display label text
+ * @property {string} [description] - Optional helper text below the label
+ * @property {boolean} [checked=false] - Initial checked state
+ * @property {function(boolean): void} [onChange] - Callback fired when toggle state changes
+ */
+
+/**
+ * Options for creating a card component
+ * @typedef {Object} CardOptions
+ * @property {string} [title] - Card title text
+ * @property {string} [icon] - Icon emoji or HTML string
+ * @property {HTMLElement|string} [content] - Card body content (element or HTML string)
+ * @property {boolean} [hover=false] - Enable hover elevation effect
+ */
+
+/**
  * Toast notification utility
  * @param {string} message - The message to display
  * @param {boolean} isSuccess - Whether this is a success message
@@ -41,23 +67,54 @@ function showToast(message, isSuccess = true, duration = 2500) {
 /**
  * Toggle Switch Component
  * Creates an accessible toggle switch that replaces checkboxes
+ * @class
  */
 class ToggleSwitch {
   /**
-   * @param {Object} options - Configuration options
-   * @param {string} options.id - Unique identifier
-   * @param {string} options.label - Label text
-   * @param {string} options.description - Helper text description
-   * @param {boolean} options.checked - Initial checked state
-   * @param {Function} options.onChange - Callback when toggle changes
+   * Create a new toggle switch
+   * @param {ToggleSwitchOptions} options - Configuration options
    */
   constructor(options) {
+    /**
+     * Unique identifier for the toggle
+     * @type {string}
+     */
     this.id = options.id;
+    
+    /**
+     * Display label text
+     * @type {string}
+     */
     this.label = options.label;
+    
+    /**
+     * Helper text description
+     * @type {string|undefined}
+     */
     this.description = options.description;
+    
+    /**
+     * Current checked state
+     * @type {boolean}
+     */
     this.checked = options.checked || false;
+    
+    /**
+     * Callback function when toggle state changes
+     * @type {function(boolean): void}
+     */
     this.onChange = options.onChange || (() => {});
+    
+    /**
+     * Root DOM element for the toggle switch component
+     * @type {HTMLElement}
+     */
     this.element = this.create();
+    
+    /**
+     * The toggle button element
+     * @type {HTMLButtonElement}
+     */
     this.toggleButton = this.element.querySelector('.toggle-switch');
   }
   
@@ -118,6 +175,7 @@ class ToggleSwitch {
   
   /**
    * Toggle the switch state
+   * @returns {void}
    */
   toggle() {
     this.setChecked(!this.checked);
@@ -126,6 +184,7 @@ class ToggleSwitch {
   /**
    * Set the checked state
    * @param {boolean} checked - New checked state
+   * @returns {void}
    */
   setChecked(checked) {
     this.checked = checked;
@@ -150,6 +209,7 @@ class ToggleSwitch {
   
   /**
    * Disable the toggle
+   * @returns {void}
    */
   disable() {
     this.toggleButton.disabled = true;
@@ -157,6 +217,7 @@ class ToggleSwitch {
   
   /**
    * Enable the toggle
+   * @returns {void}
    */
   enable() {
     this.toggleButton.disabled = false;
@@ -174,17 +235,27 @@ class ToggleSwitch {
 /**
  * Settings Manager
  * Handles loading, saving, and syncing settings across extension pages
+ * @class
  */
 class SettingsManager {
   constructor() {
+    /**
+     * Current settings state
+     * @type {ExtensionSettings}
+     */
     this.settings = {};
+    
+    /**
+     * Array of change listener callbacks
+     * @type {Array<function(ExtensionSettings): void>}
+     */
     this.listeners = [];
   }
   
   /**
    * Load settings from chrome.storage.sync
-   * @param {Object} defaults - Default values
-   * @returns {Promise<Object>} Loaded settings
+   * @param {ExtensionSettings} defaults - Default values
+   * @returns {Promise<ExtensionSettings>} Loaded settings
    */
   async load(defaults = {}) {
     return new Promise((resolve) => {
@@ -197,8 +268,9 @@ class SettingsManager {
   
   /**
    * Save settings to chrome.storage.sync
-   * @param {Object} updates - Settings to update
-   * @param {boolean} showFeedback - Whether to show save feedback toast
+   * Merges updates with existing settings and notifies all Gmail tabs
+   * @param {Partial<ExtensionSettings>} updates - Settings to update (partial object)
+   * @param {boolean} [showFeedback=true] - Whether to show save feedback toast
    * @returns {Promise<void>}
    */
   async save(updates, showFeedback = true) {
@@ -206,7 +278,7 @@ class SettingsManager {
     
     return new Promise((resolve) => {
       chrome.storage.sync.set(updates, () => {
-        this.notifyGmailTabs(updates);
+        this.notifyGmailTabs(this.settings);
         
         if (showFeedback) {
           showToast('Settings saved', true);
@@ -220,7 +292,9 @@ class SettingsManager {
   
   /**
    * Notify all Gmail tabs about settings changes
-   * @param {Object} settings - Updated settings
+   * Sends message to all tabs with mail.google.com URL
+   * @param {ExtensionSettings} settings - Complete settings object to send
+   * @returns {void}
    */
   notifyGmailTabs(settings) {
     chrome.tabs.query({ url: 'https://mail.google.com/*' }, (tabs) => {
@@ -236,7 +310,7 @@ class SettingsManager {
   /**
    * Get a specific setting value
    * @param {string} key - Setting key
-   * @returns {*} Setting value
+   * @returns {boolean|undefined} Setting value
    */
   get(key) {
     return this.settings[key];
@@ -244,7 +318,7 @@ class SettingsManager {
   
   /**
    * Get all settings
-   * @returns {Object} All settings
+   * @returns {ExtensionSettings} All settings
    */
   getAll() {
     return { ...this.settings };
@@ -252,7 +326,8 @@ class SettingsManager {
   
   /**
    * Add a change listener
-   * @param {Function} listener - Callback function
+   * @param {function(ExtensionSettings): void} listener - Callback function invoked when settings change
+   * @returns {void}
    */
   onChange(listener) {
     this.listeners.push(listener);
@@ -261,11 +336,7 @@ class SettingsManager {
 
 /**
  * Create a card element
- * @param {Object} options - Card configuration
- * @param {string} options.title - Card title
- * @param {string} options.icon - Icon emoji or HTML
- * @param {HTMLElement|string} options.content - Card content
- * @param {boolean} options.hover - Enable hover effect
+ * @param {CardOptions} options - Card configuration
  * @returns {HTMLElement} Card element
  */
 function createCard(options) {
@@ -307,8 +378,8 @@ function createCard(options) {
 
 /**
  * Create a feature list element
- * @param {Array<string>} features - Array of feature descriptions
- * @returns {HTMLElement} List element
+ * @param {string[]} features - Array of feature descriptions
+ * @returns {HTMLUListElement} Unordered list element with styled feature items
  */
 function createFeatureList(features) {
   const list = document.createElement('ul');

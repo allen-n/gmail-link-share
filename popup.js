@@ -1,16 +1,37 @@
 /**
  * Popup page script
- * Uses reusable components from shared.js
+ * Uses reusable components from shared.js (SettingsManager, ToggleSwitch)
+ * Provides quick settings access from browser toolbar
  */
 
+/**
+ * Settings manager instance for loading and saving settings
+ * @type {SettingsManager}
+ */
 const settingsManager = new SettingsManager();
+
+/**
+ * Container element for toggle switches
+ * @type {HTMLElement}
+ */
 const settingsContainer = document.getElementById('settings-container');
 
+/**
+ * Toggle switch for conversation view setting
+ * @type {ToggleSwitch}
+ */
 let convToggle;
+
+/**
+ * Toggle switch for thread list view setting
+ * @type {ToggleSwitch}
+ */
 let listToggle;
 
 /**
- * Initialize the popup page
+ * Initialize the popup page.
+ * Loads current settings, creates toggle switches, and sets up event handlers.
+ * @returns {Promise<void>}
  */
 async function init() {
   const settings = await settingsManager.load({ conv: true, list: true });
@@ -38,6 +59,11 @@ async function init() {
   settingsContainer.appendChild(convToggle.getElement());
   settingsContainer.appendChild(listToggle.getElement());
   
+  /**
+   * Handle click on "Open full options" link
+   * @param {MouseEvent} e - Click event
+   * @returns {void}
+   */
   document.getElementById('open-options').addEventListener('click', (e) => {
     e.preventDefault();
     chrome.runtime.openOptionsPage();
