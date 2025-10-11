@@ -1,21 +1,47 @@
-const conv = document.getElementById('conv');
-const list = document.getElementById('list');
+/**
+ * Popup page script
+ * Uses reusable components from shared.js
+ */
 
-chrome.storage.sync.get({ conv: true, list: true }).then(v => {
-  conv.checked = v.conv;
-  list.checked = v.list;
-});
+const settingsManager = new SettingsManager();
+const settingsContainer = document.getElementById('settings-container');
 
-function saveSettings() {
-  const settings = { conv: conv.checked, list: list.checked };
-  chrome.storage.sync.set(settings).then(() => {
-    chrome.tabs.query({ url: 'https://mail.google.com/*' }, tabs => {
-      tabs.forEach(tab => {
-        chrome.tabs.sendMessage(tab.id, { type: 'settingsChanged', settings }).catch(() => {});
-      });
-    });
+let convToggle;
+let listToggle;
+
+/**
+ * Initialize the popup page
+ */
+async function init() {
+  const settings = await settingsManager.load({ conv: true, list: true });
+  
+  convToggle = new ToggleSwitch({
+    id: 'conv',
+    label: 'Conversation View',
+    description: 'Show copy buttons next to each message in conversations',
+    checked: settings.conv,
+    onChange: (checked) => {
+      settingsManager.save({ conv: checked });
+    }
+  });
+  
+  listToggle = new ToggleSwitch({
+    id: 'list',
+    label: 'Thread List View',
+    description: 'Show copy buttons in your inbox thread list',
+    checked: settings.list,
+    onChange: (checked) => {
+      settingsManager.save({ list: checked });
+    }
+  });
+  
+  settingsContainer.appendChild(convToggle.getElement());
+  settingsContainer.appendChild(listToggle.getElement());
+  
+  document.getElementById('open-options').addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.runtime.openOptionsPage();
   });
 }
 
-conv.addEventListener('change', saveSettings);
-list.addEventListener('change', saveSettings);
+init();

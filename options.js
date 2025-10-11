@@ -1,21 +1,47 @@
-const conv = document.getElementById('conv');
-const list = document.getElementById('list');
+/**
+ * Options page script
+ * Uses reusable components from shared.js
+ */
 
-chrome.storage.sync.get({ conv: true, list: true }).then(v => {
-  conv.checked = v.conv;
-  list.checked = v.list;
-});
+const settingsManager = new SettingsManager();
+const settingsContainer = document.getElementById('settings-container');
 
-function saveSettings() {
-  const settings = { conv: conv.checked, list: list.checked };
-  chrome.storage.sync.set(settings).then(() => {
-    chrome.tabs.query({ url: 'https://mail.google.com/*' }, tabs => {
-      tabs.forEach(tab => {
-        chrome.tabs.sendMessage(tab.id, { type: 'settingsChanged', settings }).catch(() => {});
-      });
-    });
+let convToggle;
+let listToggle;
+
+/**
+ * Initialize the options page
+ */
+async function init() {
+  const settings = await settingsManager.load({ conv: true, list: true });
+  
+  convToggle = new ToggleSwitch({
+    id: 'conv',
+    label: 'Conversation View',
+    description: 'Show "Copy link" buttons next to each message bubble when viewing conversations',
+    checked: settings.conv,
+    onChange: (checked) => {
+      settingsManager.save({ conv: checked });
+    }
+  });
+  
+  listToggle = new ToggleSwitch({
+    id: 'list',
+    label: 'Thread List View',
+    description: 'Show "Copy link" buttons in your inbox thread list (copies link to last message in thread)',
+    checked: settings.list,
+    onChange: (checked) => {
+      settingsManager.save({ list: checked });
+    }
+  });
+  
+  settingsContainer.appendChild(convToggle.getElement());
+  settingsContainer.appendChild(listToggle.getElement());
+  
+  document.getElementById('report-issue').addEventListener('click', (e) => {
+    e.preventDefault();
+    showToast('To report an issue, please contact support or visit our GitHub page', true, 3500);
   });
 }
 
-conv.addEventListener('change', saveSettings);
-list.addEventListener('change', saveSettings);
+init();
