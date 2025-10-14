@@ -146,6 +146,8 @@ gmail-deeplinker/
 ├── options.html/js        # Full options page
 ├── shared.css/js          # Reusable design system & components
 ├── logo/                  # Extension icons (16-512px)
+├── build.js               # Build script for minification & optimization
+├── package.json           # NPM dependencies and build scripts
 ├── agents_context/        # AI agent documentation
 │   ├── ARCHITECTURE.md
 │   ├── CLAUDE.md
@@ -156,10 +158,48 @@ gmail-deeplinker/
 
 ### Tech Stack
 
-- **Vanilla JavaScript** (ES6+) - No frameworks or build tools
+- **Vanilla JavaScript** (ES6+) - No frameworks, minimal dependencies
 - **Chrome Extension Manifest V3** - Latest extension platform
 - **Gmail API** - OAuth 2.0 for Message-ID retrieval
 - **Mindful Design System** - Healthcare-inspired aesthetic
+- **esbuild** - Fast JavaScript/CSS minification
+- **SVGO** - SVG optimization
+
+### Building for Distribution
+
+To create an optimized, production-ready ZIP file for the Chrome Web Store:
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Build and package:**
+   ```bash
+   npm run pack
+   ```
+   
+   This will:
+   - Minify all JavaScript files (removes comments, whitespace)
+   - Minify all CSS files
+   - Optimize SVG files (typically 60-70% size reduction)
+   - Copy all necessary assets
+   - Remove the unused `scripting` permission from manifest
+   - Create `gmail-link-share.zip` in the project root
+   
+   **Expected output:**
+   - Source size: ~520 KB
+   - Optimized size: ~170 KB (67% reduction)
+   - Final ZIP: ~108 KB
+
+3. **Upload to Chrome Web Store:**
+   - Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+   - Upload `gmail-link-share.zip`
+
+**Available NPM scripts:**
+- `npm run build` - Build optimized files to `dist/` directory
+- `npm run pack` - Build + create ZIP file for distribution
+- `npm run clean` - Remove `dist/` and ZIP file
 
 ### Local Development
 
@@ -169,6 +209,8 @@ gmail-deeplinker/
 4. **Check console logs**:
    - Service worker: Click "service worker" link in `chrome://extensions`
    - Content script: Open DevTools (F12) in Gmail
+
+**Note:** For development, you can load the extension directly from the project root (unpacked). Only use the build process when preparing for distribution.
 
 ### Debugging
 
@@ -216,7 +258,6 @@ See [ARCHITECTURE.md](agents_context/ARCHITECTURE.md) for detailed technical doc
 |------------|----------------|
 | `identity` | OAuth 2.0 authentication with Google |
 | `storage` | Save your preference settings |
-| `scripting` | Inject buttons into Gmail |
 | `activeTab` | Access Gmail's DOM when you're viewing it |
 | `mail.google.com` | Inject our buttons into Gmail's interface |
 | `gmail.googleapis.com` | Fetch Message-ID headers via Gmail API |

@@ -1,0 +1,16 @@
+{
+  "name": "gmail-link-share",
+  "version": "1.0.0",
+  "description": "Create shareable Gmail links that work for anyone who received the email",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "pack": "npm run build && cd dist && zip -r ../gmail-link-share.zip .",
+    "clean": "rm -rf dist gmail-link-share.zip"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0",
+    "svgo": "^3.2.0"
+  }
+}

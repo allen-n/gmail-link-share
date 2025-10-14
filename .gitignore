@@ -1,0 +1,5 @@
+node_modules/
+dist/
+gmail-link-share.zip
+*.log
+.DS_Store
