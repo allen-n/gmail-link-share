@@ -1,4 +1,4 @@
-# Gmail Link Share
+# Link Share for Gmail™ by Cenva Labs
 
 A Chrome extension that creates Gmail links anyone can use. Unlike regular Gmail URLs, these links work for anyone who received the email - not just you.
 

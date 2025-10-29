@@ -1,6 +1,6 @@
 {
   "name": "gmail-link-share",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create shareable Gmail links that work for anyone who received the email",
   "private": true,
   "type": "module",
