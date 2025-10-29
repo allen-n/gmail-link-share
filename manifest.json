@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Gmail Link Share",
+  "name": "Link Share for Gmail™ by Cenva Labs",
   "version": "1.0.0",
   "description": "Create shareable Gmail links that work for anyone who received the email - not just you.",
   "action": {
-    "default_title": "Gmail Link Share",
+    "default_title": "Link Share for Gmail™ by Cenva Labs",
     "default_popup": "popup.html"
   },
   "icons": {

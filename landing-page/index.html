@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Link Share for Gmail™ - Create Shareable Gmail Links</title>
+    <meta
+      name="description"
+      content="Link Share for Gmail™ by Cenva Labs - A Chrome extension that creates Gmail links that work for everyone who received the email. Share email links with your team that actually work."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo">
+          <img
+            src="../logo/circle-logo-128.png"
+            alt="Link Share for Gmail™ Logo"
+            width="48"
+            height="48"
+          />
+          <div>
+            <h1>Link Share for Gmail™</h1>
+            <p class="byline">by Cenva Labs</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <h2>Create Gmail Links That Actually Work for Your Team</h2>
+          <p class="subtitle">
+            A Chrome extension that creates shareable Gmail links using email
+            Message-IDs. Unlike regular Gmail URLs, these links work for anyone
+            who received the email.
+          </p>
+          <div class="cta-buttons">
+            <a
+              href="https://github.com/allen-n/gmail-link-share"
+              class="button primary"
+              >View on GitHub</a
+            >
+            <a
+              href="https://github.com/allen-n/gmail-link-share#-installation"
+              class="button secondary"
+              >Installation Guide</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="features">
+        <div class="container">
+          <h3>Why Gmail Link Share?</h3>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="feature-icon">🔗</div>
+              <h4>Links That Work For Everyone</h4>
+              <p>
+                Unlike copying Gmail's URL, these links open the email for
+                anyone who received it (To, CC, or BCC).
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">📋</div>
+              <h4>One-Click Copying</h4>
+              <p>
+                Click the button next to any email and share the link with your
+                team instantly.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🔒</div>
+              <h4>Privacy-First</h4>
+              <p>
+                Read-only access, no data collection, all processing happens
+                locally in your browser.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">⚙️</div>
+              <h4>Customizable</h4>
+              <p>
+                Enable or disable buttons in different Gmail views via settings.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="how-it-works">
+        <div class="container">
+          <h3>How It Works</h3>
+          <div class="problem-solution">
+            <div class="problem">
+              <h4>The Problem</h4>
+              <p>
+                When you copy a Gmail URL from your browser, it only works for
+                you. If you send it to someone else who received the same email,
+                Gmail shows them a different URL - the link won't work.
+              </p>
+            </div>
+            <div class="solution">
+              <h4>The Solution</h4>
+              <p>
+                Gmail Link Share creates special links using the email's unique
+                RFC822 Message-ID. These links work for anyone who has access to
+                the email, making it easy to reference and share emails with
+                your team.
+              </p>
+            </div>
+          </div>
+          <div class="technical-details">
+            <p>
+              <strong>How it works technically:</strong> The extension uses
+              read-only Gmail API access to fetch the Message-ID header from
+              emails and creates shareable links in the format
+              <code
+                >https://mail.google.com/mail/#search/rfc822msgid%3A&lt;message-id&gt;</code
+              >
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="privacy">
+        <div class="container">
+          <h3>Privacy & Security</h3>
+          <div class="privacy-grid">
+            <div class="privacy-item">
+              <h4>What We Access</h4>
+              <ul>
+                <li>✅ Message-ID headers only (via Gmail API)</li>
+                <li>✅ Gmail DOM for button injection</li>
+                <li>❌ No email content or bodies</li>
+                <li>❌ No personal information</li>
+              </ul>
+            </div>
+            <div class="privacy-item">
+              <h4>What We Store</h4>
+              <ul>
+                <li>✅ User settings (view toggles)</li>
+                <li>✅ Message-IDs cached in memory for 2 minutes</li>
+                <li>❌ No email content</li>
+                <li>❌ No persistent message data</li>
+              </ul>
+            </div>
+            <div class="privacy-item">
+              <h4>Security Measures</h4>
+              <ul>
+                <li>
+                  Read-only OAuth scope - Cannot send, delete, or modify emails
+                </li>
+                <li>No external servers - All processing happens locally</li>
+                <li>No tracking - Zero analytics or telemetry</li>
+                <li>Minimal permissions - Only what's required</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="permissions">
+        <div class="container">
+          <h3>Permissions Explained</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Permission</th>
+                <th>Why We Need It</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>identity</code></td>
+                <td>
+                  OAuth 2.0 authentication with Google to access Gmail API
+                </td>
+              </tr>
+              <tr>
+                <td><code>storage</code></td>
+                <td>Save your preference settings</td>
+              </tr>
+              <tr>
+                <td><code>activeTab</code></td>
+                <td>Access Gmail's DOM when you're viewing it</td>
+              </tr>
+              <tr>
+                <td><code>mail.google.com</code></td>
+                <td>Inject our buttons into Gmail's interface</td>
+              </tr>
+              <tr>
+                <td><code>gmail.googleapis.com</code></td>
+                <td>Fetch Message-ID headers via Gmail API (read-only)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="oauth-disclosure">
+        <div class="container">
+          <h3>OAuth 2.0 Usage Disclosure</h3>
+          <p>
+            Gmail Link Share uses OAuth 2.0 to authenticate with Google's Gmail
+            API. This allows the extension to:
+          </p>
+          <ul>
+            <li>Read email Message-ID headers (read-only access)</li>
+            <li>
+              Provide you with shareable links to emails in your Gmail account
+            </li>
+          </ul>
+          <p>
+            <strong>Important:</strong> The extension only requests read-only
+            access to Gmail metadata (specifically Message-IDs). It cannot read
+            email content, send emails, delete emails, or modify your Gmail
+            account in any way.
+          </p>
+          <p>
+            Your OAuth tokens are stored securely by Chrome and are never
+            transmitted to any external servers. All processing happens locally
+            in your browser.
+          </p>
+        </div>
+      </section>
+
+      <section class="support">
+        <div class="container">
+          <h3>Support & Contact</h3>
+          <p>For questions, bug reports, or feature requests:</p>
+          <ul>
+            <li>
+              <strong>GitHub Issues:</strong>
+              <a href="https://github.com/allen-n/gmail-link-share/issues"
+                >Report a bug or request a feature</a
+              >
+            </li>
+            <li>
+              <strong>Documentation:</strong>
+              <a href="https://github.com/allen-n/gmail-link-share#readme"
+                >Read the full README</a
+              >
+            </li>
+            <li>
+              <strong>Source Code:</strong>
+              <a href="https://github.com/allen-n/gmail-link-share"
+                >View on GitHub</a
+              >
+            </li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>
+          &copy; 2025 Cenva Labs. Link Share for Gmail™ is open source under the
+          MIT License.
+        </p>
+        <p>
+          <a href="https://cenvalabs.com">Cenva Labs</a> |
+          <a href="https://github.com/allen-n/gmail-link-share">GitHub</a> |
+          <a href="https://github.com/allen-n/gmail-link-share/issues"
+            >Support</a
+          >
+          |
+          <a href="https://www.cenvalabs.com/privacy-policy">Privacy Policy</a>
+          |
+          <a href="https://www.cenvalabs.com/tos">Terms of Service</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
