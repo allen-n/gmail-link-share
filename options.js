@@ -4,6 +4,7 @@ const historyManager = new HistoryManager();
 let convToggle;
 let listToggle;
 let saveHistoryToggle;
+let enhancedHistoryDetailsToggle;
 let searchDebounceTimer;
 
 function createHistoryView() {
@@ -16,7 +17,7 @@ function createHistoryView() {
   const searchInput = document.createElement("input");
   searchInput.type = "text";
   searchInput.className = "search-input";
-  searchInput.placeholder = "Search by subject, sender, or recipient...";
+  searchInput.placeholder = "Search by subject, sender, recipient, or Message-ID...";
   searchInput.setAttribute("aria-label", "Search email history");
 
   searchInput.addEventListener("input", (e) => {
@@ -77,7 +78,7 @@ function renderHistoryItem(entry) {
   item.setAttribute("data-url", entry.url);
   item.setAttribute("role", "button");
   item.setAttribute("tabindex", "0");
-  item.setAttribute("aria-label", `Copy link for: ${entry.subject}`);
+  item.setAttribute("aria-label", `Copy link for: ${entry.subject || "Email link"}`);
 
   item.addEventListener("click", () =>
     copyHistoryUrl(entry.url, entry.subject)
@@ -159,6 +160,23 @@ function renderHistoryItem(entry) {
     ccRow.appendChild(ccLabel);
     ccRow.appendChild(ccValue);
     metadata.appendChild(ccRow);
+  }
+
+  if (metadata.childElementCount === 0) {
+    const modeRow = document.createElement("div");
+    modeRow.className = "history-item-meta-row";
+
+    const modeLabel = document.createElement("span");
+    modeLabel.className = "history-item-meta-label";
+    modeLabel.textContent = "Details:";
+
+    const modeValue = document.createElement("span");
+    modeValue.className = "history-item-meta-value";
+    modeValue.textContent = "Basic mode (Message-ID only)";
+
+    modeRow.appendChild(modeLabel);
+    modeRow.appendChild(modeValue);
+    metadata.appendChild(modeRow);
   }
 
   item.appendChild(metadata);
@@ -280,6 +298,7 @@ async function init() {
     conv: true,
     list: true,
     saveHistory: true,
+    enhancedHistoryDetails: false,
   });
 
   await historyManager.load();
@@ -323,10 +342,21 @@ async function init() {
     id: "saveHistory",
     label: "Save Link History",
     description:
-      "Automatically save email metadata (subject, sender, recipients) when you copy links. History is stored locally on your device.",
+      "Save copied links to local history on this device.",
     checked: settings.saveHistory,
     onChange: (checked) => {
       settingsManager.save({ saveHistory: checked });
+    },
+  });
+
+  enhancedHistoryDetailsToggle = new ToggleSwitch({
+    id: "enhancedHistoryDetails",
+    label: "Enhanced History Details",
+    description:
+      "Optionally request broader Gmail read-only scope to store Subject/From/To/CC in history. Off by default.",
+    checked: settings.enhancedHistoryDetails,
+    onChange: (checked) => {
+      settingsManager.save({ enhancedHistoryDetails: checked });
     },
   });
 
@@ -334,6 +364,7 @@ async function init() {
   settingsContainer.appendChild(convToggle.getElement());
   settingsContainer.appendChild(listToggle.getElement());
   settingsContainer.appendChild(saveHistoryToggle.getElement());
+  settingsContainer.appendChild(enhancedHistoryDetailsToggle.getElement());
 
   renderHistory();
 }

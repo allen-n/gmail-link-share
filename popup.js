@@ -39,6 +39,7 @@ let listToggle;
  * @type {ToggleSwitch}
  */
 let saveHistoryToggle;
+let enhancedHistoryDetailsToggle;
 
 /**
  * Initialize the popup page.
@@ -46,7 +47,12 @@ let saveHistoryToggle;
  * @returns {Promise<void>}
  */
 async function init() {
-  const settings = await settingsManager.load({ conv: true, list: true, saveHistory: true });
+  const settings = await settingsManager.load({
+    conv: true,
+    list: true,
+    saveHistory: true,
+    enhancedHistoryDetails: false,
+  });
   
   convToggle = new ToggleSwitch({
     id: 'conv',
@@ -71,10 +77,20 @@ async function init() {
   saveHistoryToggle = new ToggleSwitch({
     id: 'saveHistory',
     label: 'Save Link History',
-    description: 'Automatically save email metadata when copying links',
+    description: 'Save copied links to local history',
     checked: settings.saveHistory,
     onChange: (checked) => {
       settingsManager.save({ saveHistory: checked });
+    }
+  });
+
+  enhancedHistoryDetailsToggle = new ToggleSwitch({
+    id: 'enhancedHistoryDetails',
+    label: 'Enhanced History Details',
+    description: 'Optional: request broader Gmail read-only scope for Subject/From/To/CC history',
+    checked: settings.enhancedHistoryDetails,
+    onChange: (checked) => {
+      settingsManager.save({ enhancedHistoryDetails: checked });
     }
   });
   
@@ -82,6 +98,7 @@ async function init() {
   settingsContainer.appendChild(listToggle.getElement());
   
   historySettingsContainer.appendChild(saveHistoryToggle.getElement());
+  historySettingsContainer.appendChild(enhancedHistoryDetailsToggle.getElement());
   
   /**
    * Handle click on "Open full options" link

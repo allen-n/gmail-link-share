@@ -8,6 +8,8 @@
  * @typedef {Object} ExtensionSettings
  * @property {boolean} conv - Show copy buttons in conversation view (message bubbles)
  * @property {boolean} list - Show copy buttons in thread list view (inbox rows)
+ * @property {boolean} saveHistory - Save copied links to local history
+ * @property {boolean} enhancedHistoryDetails - Request broader scope to include Subject/From/To/CC in history
  */
 
 /**
@@ -572,7 +574,7 @@ class HistoryManager {
   
   /**
    * Filter entries based on search query
-   * Uses fuzzy matching against subject, from, to, and cc fields
+   * Uses fuzzy matching against subject, from, to, cc, and Message-ID fields
    * @param {string} query - Search query
    * @returns {Array} Filtered entries
    */
@@ -589,11 +591,13 @@ class HistoryManager {
       const from = (entry.from || []).join(' ').toLowerCase();
       const to = (entry.to || []).join(' ').toLowerCase();
       const cc = (entry.cc || []).join(' ').toLowerCase();
+      const messageId = (entry.messageId || '').toLowerCase();
       
       return subject.includes(searchTerm) || 
              from.includes(searchTerm) || 
              to.includes(searchTerm) || 
-             cc.includes(searchTerm);
+             cc.includes(searchTerm) ||
+             messageId.includes(searchTerm);
     });
     
     return this.filteredEntries;

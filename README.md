@@ -18,6 +18,7 @@ A Chrome extension that creates Gmail links anyone can use. Unlike regular Gmail
 ## 🚀 Installation
 
 ### Prerequisites
+
 - Google Chrome or Chromium-based browser
 - Google Cloud Console account (for OAuth setup)
 - Gmail account
@@ -30,15 +31,18 @@ A Chrome extension that creates Gmail links anyone can use. Unlike regular Gmail
 4. Navigate to **Credentials** → **Create Credentials** → **OAuth 2.0 Client ID**
 5. Choose **Chrome Extension** as application type
 6. Set **Authorized redirect URI** to:
-   ```
+
+   ```txt
    https://<YOUR_EXTENSION_ID>.chromiumapp.org/
    ```
+
    *(You'll get the extension ID after step 2.5)*
 7. Copy the **Client ID**
 
 ### 2. Install the Extension
 
 1. **Clone this repository:**
+
    ```bash
    git clone <repository-url>
    cd gmail-deeplinker
@@ -91,6 +95,7 @@ https://mail.google.com/mail/#search/rfc822msgid%3A<message-id>
 ```
 
 **Example:**
+
 ```
 https://mail.google.com/mail/#search/rfc822msgid%3ACAH%3Dj8u4kZ...%40mail.gmail.com
 ```
@@ -170,15 +175,17 @@ gmail-deeplinker/
 To create an optimized, production-ready ZIP file for the Chrome Web Store:
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 2. **Build and package:**
+
    ```bash
    npm run pack
    ```
-   
+
    This will:
    - Minify all JavaScript files (removes comments, whitespace)
    - Minify all CSS files
@@ -186,7 +193,7 @@ To create an optimized, production-ready ZIP file for the Chrome Web Store:
    - Copy all necessary assets
    - Remove the unused `scripting` permission from manifest
    - Create `gmail-link-share.zip` in the project root
-   
+
    **Expected output:**
    - Source size: ~520 KB
    - Optimized size: ~170 KB (67% reduction)
@@ -197,6 +204,7 @@ To create an optimized, production-ready ZIP file for the Chrome Web Store:
    - Upload `gmail-link-share.zip`
 
 **Available NPM scripts:**
+
 - `npm run build` - Build optimized files to `dist/` directory
 - `npm run pack` - Build + create ZIP file for distribution
 - `npm run clean` - Remove `dist/` and ZIP file
@@ -215,14 +223,17 @@ To create an optimized, production-ready ZIP file for the Chrome Web Store:
 ### Debugging
 
 **Service Worker Console:**
+
 - `chrome://extensions` → Find extension → Click "service worker"
 - View OAuth token flow, API responses, cache behavior
 
 **Content Script Console:**
+
 - Open Gmail → Press F12 → Console tab
 - View DOM mutations, button injection, clipboard operations
 
 **Common Issues:**
+
 - **"Failed to copy link"**: Make sure you've authorized the extension and the Gmail API is enabled
 - **Buttons not appearing**: Try refreshing Gmail or reloading the extension
 - **Clipboard fails**: Click on Gmail first to give it focus, then try again
@@ -234,18 +245,21 @@ See [ARCHITECTURE.md](agents_context/ARCHITECTURE.md) for detailed technical doc
 ## 🔒 Privacy & Security
 
 ### What We Access
+
 - ✅ Message-ID headers only (via Gmail API)
 - ✅ Gmail DOM for button injection
 - ❌ No email content or bodies
 - ❌ No personal information
 
 ### What We Store
+
 - ✅ User settings (conversation/list view toggles) in `chrome.storage.sync`
 - ✅ Message-IDs cached in memory for 2 minutes
 - ❌ No email content
 - ❌ No persistent message data
 
 ### Security Measures
+
 - **Read-only OAuth scope** - Cannot send, delete, or modify emails
 - **Content Security Policy** - Prevents code injection attacks
 - **No external servers** - All processing happens locally
@@ -272,16 +286,19 @@ See [ARCHITECTURE.md](agents_context/ARCHITECTURE.md) for detailed technical doc
 ## 🗺 Roadmap
 
 ### High Priority
+
 - [ ] Keyboard shortcut for copying shareable link (e.g., `Ctrl+Shift+L`)
 - [ ] Clearer error messages when links can't be created
 - [ ] Live settings updates without refreshing Gmail
 
 ### Medium Priority
+
 - [ ] Copy multiple links at once
 - [ ] Link format options (Markdown, HTML, plain text)
 - [ ] Preview links before copying
 
 ### Low Priority
+
 - [ ] Dark mode support
 - [ ] See how many links you've copied
 - [ ] Alternative link formats
